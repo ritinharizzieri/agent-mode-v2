@@ -1,6 +1,7 @@
 ---
 name: Docs Agent
 applyTo: "**/*.{js,jsx,ts,tsx}"
+tools: [read, agent, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search]
 ---
 
 # Docs Agent

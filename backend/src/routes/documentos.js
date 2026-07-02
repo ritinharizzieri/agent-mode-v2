@@ -2,15 +2,36 @@ const express = require("express");
 const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
-const fs = require("fs");
+const colaboradores = require("../data/colaboradores");
 
-// GET /api/documentos/:cpf?tipo=IR|BOLETO
+// GET /api/documentos/:cpf?tipo=IR|BOLETO&matricula=12345
 router.get("/documentos/:cpf", (req, res) => {
   const { cpf } = req.params;
-  const { tipo } = req.query;
+  const { tipo, matricula } = req.query;
 
   // Normalizar CPF (remover pontuação)
   const cpfNormalizado = cpf.replace(/\D/g, "");
+
+  if (!/^\d{11}$/.test(cpfNormalizado)) {
+    return res.status(400).json({
+      success: false,
+      message: "CPF inválido. Informe um CPF com 11 dígitos.",
+    });
+  }
+
+  if (matricula) {
+    const colaborador = colaboradores.find((c) => {
+      const cpfColaborador = c.cpf.replace(/\D/g, "");
+      return c.matricula === matricula && cpfColaborador === cpfNormalizado;
+    });
+
+    if (!colaborador) {
+      return res.status(404).json({
+        success: false,
+        message: "Matrícula não localizada para o CPF informado.",
+      });
+    }
+  }
 
   // Validar tipo de documento se fornecido
   if (tipo && !["IR", "BOLETO"].includes(tipo.toUpperCase())) {
