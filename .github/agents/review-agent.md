@@ -1,6 +1,7 @@
 ---
 name: Review Agent
 applyTo: "**/*.{js,jsx,ts,tsx}"
+tools: [execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/runInTerminal, read, search]
 ---
 
 # Review Agent

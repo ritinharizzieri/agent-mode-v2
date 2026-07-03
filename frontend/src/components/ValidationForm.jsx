@@ -17,6 +17,10 @@ const formatDate = (value) => {
     .slice(0, 10);
 };
 
+const formatYear = (value) => {
+  return value.replace(/\D/g, "").slice(0, 4);
+};
+
 export default function ValidationForm({
   onSubmit,
   isLoading,
@@ -28,6 +32,7 @@ export default function ValidationForm({
     cpf: "",
     dataNascimento: "",
     dataAdmissao: "",
+    ano: "",
   });
 
   const handleChange = (e) => {
@@ -37,6 +42,8 @@ export default function ValidationForm({
       setFormData({ ...formData, [name]: formatCPF(value) });
     } else if (name === "dataNascimento" || name === "dataAdmissao") {
       setFormData({ ...formData, [name]: formatDate(value) });
+    } else if (name === "ano") {
+      setFormData({ ...formData, [name]: formatYear(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -125,6 +132,24 @@ export default function ValidationForm({
           placeholder="DD/MM/AAAA"
           required
           disabled={isLoading}
+          className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="ano" className="block text-sm font-medium text-gray-700">
+          Ano (opcional)
+        </label>
+        <input
+          type="text"
+          id="ano"
+          name="ano"
+          value={formData.ano}
+          onChange={handleChange}
+          placeholder="AAAA"
+          disabled={isLoading}
+          inputMode="numeric"
+          maxLength={4}
           className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
       </div>

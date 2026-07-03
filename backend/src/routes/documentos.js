@@ -7,7 +7,7 @@ const colaboradores = require("../data/colaboradores");
 // GET /api/documentos/:cpf?tipo=IR|BOLETO&matricula=12345
 router.get("/documentos/:cpf", (req, res) => {
   const { cpf } = req.params;
-  const { tipo, matricula } = req.query;
+  const { tipo, matricula, ano } = req.query;
 
   // Normalizar CPF (remover pontuação)
   const cpfNormalizado = cpf.replace(/\D/g, "");
@@ -41,6 +41,14 @@ router.get("/documentos/:cpf", (req, res) => {
     });
   }
 
+  if (ano && !/^\d{4}$/.test(ano)) {
+    return res.status(400).json({
+      success: false,
+      message: "Ano inválido. Informe um ano com 4 dígitos.",
+    });
+  }
+
+  const anoFiltro = ano?.trim();
   const documentos = [];
 
   // Simular token de expiração
@@ -52,34 +60,38 @@ router.get("/documentos/:cpf", (req, res) => {
   // Documentos IR (Informes de Rendimentos)
   if (!tipo || tipo.toUpperCase() === "IR") {
     const anosIR = ["2024", "2025"];
+    const anosDisponiveis = anoFiltro
+      ? anosIR.filter((anoDisponivel) => anoDisponivel === anoFiltro)
+      : anosIR;
 
-    anosIR.forEach((ano) => {
-      const fileName = `INF_${ano}_${cpfNormalizado}.pdf`;
+    anosDisponiveis.forEach((anoDisponivel) => {
+      const fileName = `INF_${anoDisponivel}_${cpfNormalizado}.pdf`;
       const filePath = path.join(
         __dirname,
-        `../../../backend/storage/IR/${ano}/${fileName}`,
+        `../../../backend/storage/IR/${anoDisponivel}/${fileName}`,
       );
 
       // Verificar se o arquivo existe (ou simular existência)
       documentos.push({
-        nome: `Informe de Rendimentos ${ano}`,
+        nome: `Informe de Rendimentos ${anoDisponivel}`,
         tipo: "IR",
-        ano: ano,
-        link: `http://localhost:${process.env.PORT || 3001}/storage/IR/${ano}/${fileName}?token=${token}&expires=${tokenExpiration}`,
+        ano: anoDisponivel,
+        link: `http://localhost:${process.env.PORT || 3001}/storage/IR/${anoDisponivel}/${fileName}?token=${token}&expires=${tokenExpiration}`,
       });
     });
   }
 
   // Documentos BOLETO
   if (!tipo || tipo.toUpperCase() === "BOLETO") {
-    const fileName = `BLT_01_2025_${cpfNormalizado}.pdf`;
+    const anoBoleto = anoFiltro || "2025";
+    const fileName = `BLT_01_${anoBoleto}_${cpfNormalizado}.pdf`;
 
     documentos.push({
-      nome: "Boleto 01/2025",
+      nome: `Boleto 01/${anoBoleto}`,
       tipo: "BOLETO",
-      ano: "2025",
+      ano: anoBoleto,
       mes: "01",
-      link: `http://localhost:${process.env.PORT || 3001}/storage/BOLETOS/2025/01/${fileName}?token=${token}&expires=${tokenExpiration}`,
+      link: `http://localhost:${process.env.PORT || 3001}/storage/BOLETOS/${anoBoleto}/01/${fileName}?token=${token}&expires=${tokenExpiration}`,
     });
   }
 
