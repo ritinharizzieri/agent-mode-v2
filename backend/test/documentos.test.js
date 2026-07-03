@@ -83,3 +83,40 @@ test("GET /api/documentos/:cpf retorna 404 quando a matrícula não existe", asy
     await stopTestServer(server);
   }
 });
+
+test("GET /api/documentos/:cpf filtra documentos por ano quando informado", async () => {
+  const { server, baseUrl } = await startTestServer();
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/documentos/123.456.789-00?matricula=12345&tipo=IR&ano=2024`,
+    );
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(body.success, true);
+    assert.ok(Array.isArray(body.documentos));
+    assert.equal(body.documentos.length, 1);
+    assert.equal(body.documentos[0].tipo, "IR");
+    assert.equal(body.documentos[0].ano, "2024");
+  } finally {
+    await stopTestServer(server);
+  }
+});
+
+test("GET /api/documentos/:cpf rejeita ano inválido", async () => {
+  const { server, baseUrl } = await startTestServer();
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/documentos/123.456.789-00?matricula=12345&ano=abc`,
+    );
+    const body = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(body.success, false);
+    assert.match(body.message, /ano inválido/i);
+  } finally {
+    await stopTestServer(server);
+  }
+});

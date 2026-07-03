@@ -24,9 +24,15 @@ export const validarColaborador = (data) => {
  * @param {string} tipo - Tipo de documento (IR ou BOLETO)
  * @returns {Promise}
  */
-export const obterDocumentos = (cpf, tipo) => {
+export const obterDocumentos = (cpf, tipo, ano) => {
+  const params = { tipo };
+
+  if (ano) {
+    params.ano = ano;
+  }
+
   return api.get(`/api/documentos/${cpf}`, {
-    params: { tipo },
+    params,
   });
 };
 

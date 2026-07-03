@@ -27,7 +27,11 @@ export default function Home() {
       setValidatedCpf(formData.cpf);
 
       // Buscar documentos
-      const response = await obterDocumentos(formData.cpf, formData.tipo);
+      const response = await obterDocumentos(
+        formData.cpf,
+        formData.tipo,
+        formData.ano,
+      );
       const docsData = response.data.documentos || response.data || [];
       setDocuments(Array.isArray(docsData) ? docsData : [docsData]);
     } catch (err) {
